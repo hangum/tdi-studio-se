@@ -328,9 +328,9 @@ public class JavaProcessorUtilities {
             for (File externalLib : libDir.listFiles(FilesUtils.getAcceptJARFilesFilter())) {
                 for (ModuleNeeded module : jarsNeedRetrieve) {
                     if (externalLib.getName().equals(module.getModuleName())) {
-                        ;
+                        exist.add(module);
                     }
-                    exist.add(module);
+
                 }
             }
             jarsNeedRetrieve.removeAll(exist);

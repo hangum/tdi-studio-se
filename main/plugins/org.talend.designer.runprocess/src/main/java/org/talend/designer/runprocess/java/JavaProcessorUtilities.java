@@ -324,9 +324,16 @@ public class JavaProcessorUtilities {
                 }
             }
 
+            Set<ModuleNeeded> exist = new HashSet<ModuleNeeded>();
             for (File externalLib : libDir.listFiles(FilesUtils.getAcceptJARFilesFilter())) {
-                jarsNeedRetrieve.remove(externalLib.getName());
+                for (ModuleNeeded module : jarsNeedRetrieve) {
+                    if (externalLib.getName().equals(module.getModuleName())) {
+                        ;
+                    }
+                    exist.add(module);
+                }
             }
+            jarsNeedRetrieve.removeAll(exist);
             Set<String> jarStringListNeededByProcess = new HashSet<String>();
             for (ModuleNeeded moduleNeeded : jobModuleList) {
                 jarStringListNeededByProcess.add(moduleNeeded.getModuleName());

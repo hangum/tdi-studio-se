@@ -175,6 +175,9 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     protected JobExportType exportTypeFixed;
 
     public static final String PETALS_EXPORT_DESTINATIONS = "org.ow2.petals.esbexport.destinations"; //$NON-NLS-1$
+    
+    /** export io combo */
+    protected Combo exportIOCombo;
 
     JavaJobScriptsExportWSWizardPagePresenter presenter = new JavaJobScriptsExportWSWizardPagePresenter(this);
 
@@ -338,6 +341,9 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         createExportTypeGroup(pageComposite);
 
         createOptionsGroupButtons(pageComposite);
+        
+        /** iodesigner extension */
+        createIODesignerExtension(pageComposite);
 
         restoreResourceSpecificationWidgetValues(); // ie.- local
 
@@ -349,6 +355,39 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         pageComposite.setSize(pageComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         scrolledComposite.setMinSize(pageComposite.getSize());
         scrolledComposite.setContent(pageComposite);
+    }
+    
+    /**
+     * create IODesigner extension
+     * 
+     * @param parent
+     */
+    protected void createIODesignerExtension(Composite parent) {
+        GridLayout layout = new GridLayout();
+        Composite optionsGroupComposite = new Composite(parent, SWT.NONE);
+        GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
+        optionsGroupComposite.setLayoutData(gridData);
+        optionsGroupComposite.setLayout(layout);
+
+        // options group
+        Group optionsGroup = new Group(optionsGroupComposite, SWT.NONE);
+        optionsGroup.setLayout(layout);
+        optionsGroup.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
+        optionsGroup.setText("IODesigner extension"); //$NON-NLS-1$
+
+        Composite left = new Composite(optionsGroup, SWT.NONE);
+        gridData = new GridData(SWT.LEFT, SWT.TOP, true, false);
+        left.setLayoutData(gridData);
+        left.setLayout(new GridLayout(2, true));
+
+        Label label = new Label(left, SWT.NONE);
+        label.setText("Auto deploy"); //$NON-NLS-1$
+        
+        exportIOCombo = new Combo(left, SWT.PUSH);
+        exportIOCombo.add("YES");
+        exportIOCombo.add("NO");
+        exportIOCombo.select(1);
+        
     }
 
     protected void createExportTypeGroup(Composite parent) {
@@ -1221,8 +1260,29 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     @Override
     public boolean finish() {
         saveWidgetValues();
+        
+        boolean isFinish = super.finish();
 
-        return super.finish();
+        // finish
+        System.out.println("================= finish button 을 클릭했다.");
+        
+        if("YES".equalsIgnoreCase(exportIOCombo.getText())) {
+        	System.out.println("======== 서버에 데이터를 보내야 합니다.  ");
+        	
+        	if (manager != null) {
+        		System.out.println("0. =======> zip file : " +  manager.getDestinationPath());
+        		
+        		File f = new File(manager.getDestinationPath());
+        		System.out.println("0.1 Absolute path is : " + f.getAbsolutePath());
+            } else {
+            	System.out.println("1. =======> zip file : " +  getDestinationValue());
+            	
+            	File f = new File(getDestinationValue());
+            	System.out.println("1.1 Absolute path is : " + f.getAbsolutePath());
+            }
+        }
+        
+        return isFinish;
     }
 
 }

@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.swt.SWT;
@@ -45,6 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.talend.commons.exception.PersistenceException;
+import org.talend.commons.utils.PasswordEncryptUtil;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.PluginChecker;
 import org.talend.core.model.process.IContext;
@@ -53,13 +55,18 @@ import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.repository.constants.FileConstants;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.ui.branding.IBrandingService;
+import org.talend.designer.core.model.utils.emf.talendfile.ContextParameterType;
 import org.talend.designer.runprocess.IProcessor;
 import org.talend.repository.i18n.Messages;
 import org.talend.repository.ui.utils.Log4jPrefsSettingManager;
+import org.talend.repository.ui.wizards.exportjob.iqdesigner.ExportServerRestClient;
+import org.talend.repository.ui.wizards.exportjob.iqdesigner.ExporterServerVO;
 import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManager;
 import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManager.ExportChoice;
 import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManagerFactory;
 import org.talend.repository.ui.wizards.exportjob.util.ExportJobUtil;
+
+import com.sun.xml.internal.ws.encoding.xml.XMLMessage.MessageDataSource;
 
 /**
  * DOC x class global comment. Detailled comment <br/>
@@ -178,6 +185,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     
     /** export io combo */
     protected Combo exportIOCombo;
+    protected Text txtUrlPath;
 
     JavaJobScriptsExportWSWizardPagePresenter presenter = new JavaJobScriptsExportWSWizardPagePresenter(this);
 
@@ -342,8 +350,8 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
         createOptionsGroupButtons(pageComposite);
         
-        /** iodesigner extension */
-        createIODesignerExtension(pageComposite);
+        /** iqdesigner extension */
+        createIQDesignerExtension(pageComposite);
 
         restoreResourceSpecificationWidgetValues(); // ie.- local
 
@@ -358,11 +366,11 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     }
     
     /**
-     * create IODesigner extension
+     * create IQDesigner extension
      * 
      * @param parent
      */
-    protected void createIODesignerExtension(Composite parent) {
+    protected void createIQDesignerExtension(Composite parent) {
         GridLayout layout = new GridLayout();
         Composite optionsGroupComposite = new Composite(parent, SWT.NONE);
         GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
@@ -373,12 +381,12 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         Group optionsGroup = new Group(optionsGroupComposite, SWT.NONE);
         optionsGroup.setLayout(layout);
         optionsGroup.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
-        optionsGroup.setText("IODesigner extension"); //$NON-NLS-1$
+        optionsGroup.setText("IQDesigner extension"); //$NON-NLS-1$
 
         Composite left = new Composite(optionsGroup, SWT.NONE);
         gridData = new GridData(SWT.LEFT, SWT.TOP, true, false);
         left.setLayoutData(gridData);
-        left.setLayout(new GridLayout(2, true));
+        left.setLayout(new GridLayout(4, true));
 
         Label label = new Label(left, SWT.NONE);
         label.setText("Auto deploy"); //$NON-NLS-1$
@@ -387,6 +395,12 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         exportIOCombo.add("YES");
         exportIOCombo.add("NO");
         exportIOCombo.select(1);
+
+        Label labelPath = new Label(left, SWT.NONE);
+        labelPath.setText("URL Path"); //$NON-NLS-1$
+
+        txtUrlPath = new Text(left, SWT.READ_ONLY);
+        txtUrlPath.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
         
     }
 
@@ -1260,29 +1274,83 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     @Override
     public boolean finish() {
         saveWidgetValues();
-        
         boolean isFinish = super.finish();
 
         // finish
-        System.out.println("================= finish button 을 클릭했다.");
-        
         if("YES".equalsIgnoreCase(exportIOCombo.getText())) {
-        	System.out.println("======== 서버에 데이터를 보내야 합니다.  ");
         	
-        	if (manager != null) {
-        		System.out.println("0. =======> zip file : " +  manager.getDestinationPath());
-        		
-        		File f = new File(manager.getDestinationPath());
-        		System.out.println("0.1 Absolute path is : " + f.getAbsolutePath());
-            } else {
-            	System.out.println("1. =======> zip file : " +  getDestinationValue());
-            	
-            	File f = new File(getDestinationValue());
-            	System.out.println("1.1 Absolute path is : " + f.getAbsolutePath());
-            }
+        	String strAbsolutePath = "";
+        	if (manager != null) strAbsolutePath = manager.getDestinationPath();
+            else strAbsolutePath = getDestinationValue();
+        	ExporterServerVO exportVo = getExportContext(strAbsolutePath);
+    
+        	// validation 
+        	if("".equals(exportVo.getHost())) {
+        		MessageDialog.openError(null, "Error", "Host name not define. Please input host name.");
+        		return false;
+        	} else if("".equals(exportVo.getJob_path())) {
+        		MessageDialog.openError(null, "Error", "Job pathnot define. Please input Job path.");
+        		return false;
+        	} else if("".equals(exportVo.getId())) {
+        		MessageDialog.openError(null, "Error", "User id not define. Please input User id.");
+        		return false;
+        	}
+
+//        	// check auth
+//        	ExportServerRestClient client = new ExportServerRestClient();
+//        	try {
+//				client.auth(exportVo);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				MessageDialog.openError(null, "Error", e.getMessage());
+//				return false;
+//			}
+//        	
+//        	// check file send
+//        	try {
+//				client.fileSend(exportVo);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				MessageDialog.openError(null, "Error", e.getMessage());
+//				return false;
+//			}
+        	
+        	MessageDialog.openInformation(null, "Confirm", "Success file upload.");
         }
         
         return isFinish;
     }
-
+    
+    /**
+     * get export context
+     * 
+     * @return
+     */
+    private ExporterServerVO getExportContext(String strAbsolutePath) {
+    	ExporterServerVO exportVo = new ExporterServerVO();
+    	exportVo.setAbsoluteFilePath(strAbsolutePath);;
+    	
+    	List<ContextParameterType> contextValueList = ExportJobUtil.getJobContextValues(getProcessItem(), contextCombo.getText());
+    	for (ContextParameterType contextParameterType : contextValueList) {
+    		String type = contextParameterType.getType();
+         	String name = contextParameterType.getName();
+         	String value = contextParameterType.getValue();
+         	System.out.println("type: " + type + ", name: " + name + ", value: " + value);
+         
+         	if (value != null && PasswordEncryptUtil.isPasswordType(type)) {
+         		try {
+         			String rawPassword = PasswordEncryptUtil.decryptPassword(value);
+         			if(name.equals("pass")) exportVo.setId(rawPassword);
+         		} catch (Exception e) {
+         			e.printStackTrace();
+         		}
+     		 } else {
+     			 if(name.equals("id")) exportVo.setId(value);
+     			 else if(name.equals("host")) exportVo.setHost(value);
+     			 else if(name.equals("job_path")) exportVo.setJob_path(value);
+     		 }
+    	}
+         
+    	return exportVo;
+    }
 }

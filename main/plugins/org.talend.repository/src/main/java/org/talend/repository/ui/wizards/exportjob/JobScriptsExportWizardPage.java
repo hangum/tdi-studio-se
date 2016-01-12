@@ -587,6 +587,15 @@ public abstract class JobScriptsExportWizardPage extends WizardFileSystemResourc
 
         contextCombo = new Combo(parentComposite, SWT.PUSH);
         contextCombo.setLayoutData(new GridData());
+        // specialial IQDesigner area...
+        contextCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+               System.out.println("===== change context combo.........");
+               
+               
+            }
+        });
 
         Composite contextConfigComp = new Composite(parentComposite, SWT.NONE);
         GridData contextConfigGridData = new GridData(GridData.FILL_HORIZONTAL);

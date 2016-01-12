@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpcore/commons-cli-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpcore/httpcore-4.4.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpcore/httpcore-ab-4.4.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpcore/httpcore-nio-4.4.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/commons-codec-1.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/commons-logging-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/fluent-hc-4.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/httpclient-4.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/httpclient-cache-4.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/httpclient-win-4.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/httpcore-4.4.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/httpmime-4.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/jna-4.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient/jna-platform-4.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpasyncclient/httpasyncclient-4.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpasyncclient/httpasyncclient-cache-4.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/unirest/unirest-java-1.4.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/json/json-20151123.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>

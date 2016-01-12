@@ -1,11 +1,9 @@
 package org.talend.repository.ui.wizards.exportjob.iqdesigner;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 
 /**
@@ -21,67 +19,47 @@ import com.mashape.unirest.http.Unirest;
  */
 public class ExportServerRestClient {
 	
-	public static final String URL_AUTH = "/auth";
-	
 	/**
 	 * auth
 	 * 
 	 * @param vo
 	 * @throws Exception
 	 */
-	public static void auth(ExporterServerVO vo) throws Exception {
-		HttpResponse<JsonNode> response = Unirest.get(vo.getHost() + URL_AUTH).basicAuth(vo.getId(), vo.getPasswd()).asJson();
-		System.out.println("auth status : " + response.getStatus() + ", msg" + response.getStatusText());
-		if(response.getStatus() != 200) throw new Exception(response.getStatus() + " msg is " + response.getStatusText());
-	}
-	
-	/**
-	 * file send
-	 * 
-	 * @param vo
-	 * @throws Exception
-	 */
-	public static void fileSend(ExporterServerVO vo) throws Exception {
-		HttpResponse<JsonNode> response = Unirest.post(vo.getHost() + vo.getJob_path())
-				  .header("accept", "application/json")
-				  .field("file", new File(vo.getAbsoluteFilePath()))
-				  .asJson();
+	public static void authAndFileSend(ExporterServerVO vo) throws Exception {
+		HttpResponse response = 
+				Unirest.post(vo.getHost()+vo.getJob_path() + "/upload-job-archive")
+					//	헤더는 없어야 정상 호출됩니다.
+					.basicAuth(vo.getId(), vo.getPasswd())
+					.field("file", new File(vo.getAbsoluteFilePath()))
+					.asBinary();
 		
-		if(response.getStatus() != 200) throw new Exception(response.getStatus() + " msg is " + response.getStatusText());
-	}
-
-	/**
-	 * 
-	 * @param vo
-	 * @throws Exception
-	 */
-	public static void test(ExporterServerVO vo) throws Exception {
-		Map<String, String> mapHead = new HashMap<String, String>();
-		mapHead.put("TDB_ACCESS_KEY", vo.getId());
-		mapHead.put("TDB_SECRET_KEY", vo.getPasswd());
+		System.out.println("===> Status code " + response.getStatus() + ", Status text is " + response.getStatusText());
+		ByteArrayInputStream inputStream = (ByteArrayInputStream)response.getBody();
+		int readByte = inputStream.read();
+		byte[] arryByte = new byte[readByte];
+		inputStream.read(arryByte, 0, readByte);
+		System.out.println("====> body : " + new String(arryByte));
+//		System.out.println(response.getBody());
 		
-		HttpResponse<JsonNode> response = Unirest.get(vo.getHost() + vo.getJob_path())
-				  .headers(mapHead)
-				  .asJson()
-				  ;
-		System.out.println(response.getStatus() + ":" + response.getStatusText());
-		if(response.getStatus() != 200) throw new Exception(response.getStatus() + " msg is " + response.getStatusText());
-		JsonNode body = response.getBody();
-		System.out.println("result : " + body);
+		if(response.getStatus() != 200) throw new Exception("Status code " + response.getStatus() + ", Status text is " + response.getStatusText());
 	}
 	
 	public static void main(String[] args) {
 		ExporterServerVO exportVo = new ExporterServerVO();
-		exportVo.setId("16eda786-42e3-498e-83a9-381801da0505");
-		exportVo.setPasswd("49509165-9f8b-47d2-9c43-b1297ef7ef76");
+		exportVo.setId("admin");
+		exportVo.setPasswd("admin");
 		
-		exportVo.setHost("http://127.0.0.1:8080/tadpoleapi/rest/base/ct/");
-		exportVo.setJob_path("search?COUNTRY_ID=AU&resultType=JSON");
-		exportVo.setAbsoluteFilePath("");
+//		exportVo.setHost("http://127.0.0.1:9090/projects/1/jobs/");
+		exportVo.setHost("http://192.168.0.187:9090/projects/1/jobs/");
+		exportVo.setJob_path("1");
+		exportVo.setAbsoluteFilePath("/Users/hangum/Downloads/example_shape_file/test_01.zip");
+		
+		File f = new File(exportVo.getAbsoluteFilePath());
+		System.out.println(f.exists());
 		
 		try {
 			ExportServerRestClient client = new ExportServerRestClient();
-			client.test(exportVo);
+			client.authAndFileSend(exportVo);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

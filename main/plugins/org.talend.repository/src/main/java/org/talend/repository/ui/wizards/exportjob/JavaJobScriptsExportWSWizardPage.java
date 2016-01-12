@@ -1305,25 +1305,16 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         		return false;
         	}
 
-//        	// check auth
-//        	ExportServerRestClient client = new ExportServerRestClient();
-//        	try {
-//				client.auth(exportVo);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				MessageDialog.openError(null, "Error", e.getMessage());
-//				return false;
-//			}
-//        	
-//        	// check file send
-//        	try {
-//				client.fileSend(exportVo);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				MessageDialog.openError(null, "Error", e.getMessage());
-//				return false;
-//			}
-        	
+        	// check auth
+        	ExportServerRestClient client = new ExportServerRestClient();
+        	try {
+				client.authAndFileSend(exportVo);
+			} catch (Exception e) {
+				e.printStackTrace();
+				MessageDialog.openError(null, "Error", e.getMessage());
+				return false;
+			}
+
         	MessageDialog.openInformation(null, "Confirm", "Success file upload.");
         }
         

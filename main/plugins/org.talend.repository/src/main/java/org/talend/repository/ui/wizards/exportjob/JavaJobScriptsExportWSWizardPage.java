@@ -384,14 +384,14 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         optionsGroup.setText("IQDesigner extension"); //$NON-NLS-1$
 
         Composite left = new Composite(optionsGroup, SWT.NONE);
-        gridData = new GridData(SWT.LEFT, SWT.TOP, true, false);
-        left.setLayoutData(gridData);
-        left.setLayout(new GridLayout(4, true));
+        left.setLayout(new GridLayout(4, false));
+        left.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 
         Label label = new Label(left, SWT.NONE);
         label.setText("Auto deploy"); //$NON-NLS-1$
         
         exportIOCombo = new Combo(left, SWT.PUSH);
+        exportIOCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         exportIOCombo.add("YES");
         exportIOCombo.add("NO");
         exportIOCombo.select(1);
@@ -400,7 +400,16 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         labelPath.setText("URL Path"); //$NON-NLS-1$
 
         txtUrlPath = new Text(left, SWT.READ_ONLY);
-        txtUrlPath.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+        txtUrlPath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        changeServerURLPath();
+        
+     // specialial IQDesigner area...
+        contextCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+            	changeServerURLPath();
+            }
+        });
         
     }
 
@@ -1319,6 +1328,18 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         }
         
         return isFinish;
+    }
+    
+    /**
+     * make Server URL Path
+     */
+    private void changeServerURLPath() {
+    	ExporterServerVO vo = getExportContext();
+    	txtUrlPath.setText(vo.getHost() + vo.getJob_path());
+    }
+    
+    private ExporterServerVO getExportContext() {
+    	return getExportContext("");
     }
     
     /**

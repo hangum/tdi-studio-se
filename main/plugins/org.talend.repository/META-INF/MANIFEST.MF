@@ -46,7 +46,8 @@ Require-Bundle: javax.xml.rpc,
  org.talend.repository.items.importexport,
  org.talend.repository.items.importexport.ui;bundle-version="6.0.0",
  org.talend.commons.runtime,
- org.talend.designer.maven
+ org.talend.designer.maven,
+ org.apache.commons.httpclient;bundle-version="3.1.0"
 Export-Package: org.talend.repository,
  org.talend.repository.constants,
  org.talend.repository.i18n,
@@ -89,22 +90,4 @@ Export-Package: org.talend.repository,
  org.talend.repository.utils
 Bundle-Activator: org.talend.repository.RepositoryPlugin
 Bundle-ClassPath: .,
- lib/velocity-1.7.jar,
- lib/json/json-20151123.jar,
- lib/unirest/unirest-java-1.4.7.jar,
- lib/httpasyncclient/httpasyncclient-4.1.1.jar,
- lib/httpasyncclient/httpasyncclient-cache-4.1.1.jar,
- lib/httpclient/commons-codec-1.9.jar,
- lib/httpclient/commons-logging-1.2.jar,
- lib/httpclient/fluent-hc-4.5.1.jar,
- lib/httpclient/httpclient-4.5.1.jar,
- lib/httpclient/httpclient-cache-4.5.1.jar,
- lib/httpclient/httpclient-win-4.5.1.jar,
- lib/httpclient/httpcore-4.4.3.jar,
- lib/httpclient/httpmime-4.5.1.jar,
- lib/httpclient/jna-4.1.0.jar,
- lib/httpclient/jna-platform-4.1.0.jar,
- lib/httpcore/commons-cli-1.2.jar,
- lib/httpcore/httpcore-4.4.4.jar,
- lib/httpcore/httpcore-ab-4.4.4.jar,
- lib/httpcore/httpcore-nio-4.4.4.jar
+ lib/velocity-1.7.jar

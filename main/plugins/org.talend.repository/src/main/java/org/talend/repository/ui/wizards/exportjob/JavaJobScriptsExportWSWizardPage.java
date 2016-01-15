@@ -1318,39 +1318,8 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 			}
         }
         
-//        httpClient(exportVo);
-        
         return isFinish;
     }
-//    
-//    private void httpClient(ExporterServerVO vo) {
-//    	System.out.println("=====[start httpClient]=======================================");
-//    	try {
-//    		File f = new File(vo.getAbsoluteFilePath());
-//    		RequestEntity entity = new FileRequestEntity(f, "");//application/zip");
-//    		if(f.exists()) System.out.println("==> file이 존재합나다.");
-//    		
-//    		PostMethod filePost = new PostMethod(vo.getHost() + vo.getJob_path() + "/upload-job-archive");
-//    		filePost.setDoAuthentication( true ); // must authenticate
-////    		Part[] parts = {new FilePart(f.getName(), f)};
-//    		filePost.setRequestEntity(entity);//new MultipartRequestEntity(parts, filePost.getParams()));
-//    		  
-//    		HttpClient client = new HttpClient();
-//    		client.getParams().setAuthenticationPreemptive(true);
-//    		Credentials creds = new UsernamePasswordCredentials("admin", "admin");
-//    		client.getState().setCredentials(AuthScope.ANY, creds);
-//    		client.getState().setProxyCredentials(AuthScope.ANY, creds); // may not be necessary
-//    		client.getParams().setAuthenticationPreemptive(true);
-//    	      
-//    		int status = client.executeMethod(filePost);
-//    		  
-//    		System.out.println("[status]" + status + "[response]" + filePost.getResponseBodyAsString());
-//
-//    	} catch(Exception e) {
-//    		e.printStackTrace();
-//    	}
-//    	System.out.println("=====[end httpClient]=======================================");
-//    }
     
     /**
      * make Server URL Path

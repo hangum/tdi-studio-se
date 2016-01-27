@@ -1285,6 +1285,8 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     public boolean finish() {
         saveWidgetValues();
         boolean isFinish = super.finish();
+        // export중에 실패가 있었으면(파일 오버라이트 포함)
+        if(!isFinish) return false;
 
         // finish
         if("YES".equalsIgnoreCase(exportIOCombo.getText())) {
